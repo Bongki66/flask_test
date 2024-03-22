@@ -249,3 +249,54 @@ def get_sales(id):
     except Exception as e:
         print('error:', e, file=sys.stderr)
         return 'Failed!', 400
+
+# UPDATE
+@app.route("/sales/update/<id>", methods=['PUT'])
+def update_sales(id):
+    try:
+        print('id:', id, file=sys.stderr)
+        sales = Sales.objects(id=ObjectId(id)).first()
+        if sales:
+            print('json:', request.json, file=sys.stderr)
+            json_data = request.json
+            for key in json_data:
+                print('key:', key, file=sys.stderr)
+                if key == 'customer_id':
+                    customer_id = json_data['customer_id']
+                    customer = Customer.objects(id=ObjectId(customer_id)).first()
+                    sales.customer_id = customer
+                elif key == 'product_id':
+                    product_id = json_data['product_id']
+                    product = Product.objects(id=ObjectId(product_id)).first()
+                    unit_price = product.unit_price
+                    sales.product_id = product
+                    sales.unit_price = unit_price
+                elif key == 'qty':
+                    sales.qty = json_data['qty']
+            sales.total_price = sales.qty * sales.unit_price
+            sales.save()
+            sales_json = sales.to_json()
+            sales_json = json.loads(sales_json)
+            return jsonify(sales_json), 200
+        else:
+            return 'Invalid ID!', 400
+    except Exception as e:
+        print('error:', e, file=sys.stderr)
+        return 'Failed!', 400
+
+
+# DELETE
+@app.route("/sales/delete/<id>", methods=['DELETE'])
+def delete_sales(id):
+    try:
+        print('id:', id, file=sys.stderr)
+        sales = Sales.objects(id=ObjectId(id))
+        if sales:
+            for s in sales:
+                s.delete()
+            return 'Success delete sales id: ' + id, 200
+        else:
+            return 'Invalid ID', 400
+    except Exception as e:
+        print('error:', e, file=sys.stderr)
+        return 'Failed!', 400
