@@ -33,7 +33,11 @@ class Sales(Document):
 def create_customer():
     customer_data = json.loads(request.data)
     try:
-        new_customer = Customer(name=customer_data['name'], handphone=customer_data['handphone'])
+        new_customer = Customer()
+        if 'name' in customer_data:
+            new_customer.name = customer_data['name']
+        if 'handphone' in customer_data:
+            new_customer.handphone = customer_data['handphone'] 
         new_customer.save()
         return 'Success!', 200
     except Exception as e:
@@ -114,7 +118,13 @@ def delete_customer(id):
 def create_product():
     product_data = json.loads(request.data)
     try:
-        new_product = Product(name=product_data['name'], unit_price=product_data['unit_price'], stock_type=product_data['stock_type'])
+        new_product = Product()
+        if 'name' in product_data:
+            new_product.name = product_data['name']
+        if 'unit_price' in product_data:
+            new_product.unit_price = product_data['unit_price']
+        if 'stock_type' in product_data:
+            new_product.stock_type = product_data['stock_type']
         new_product.save()
         return 'Success!', 200
     except Exception as e:
@@ -201,19 +211,25 @@ def create_sales():
     try:
         # customer object
         # get data sales
-        customer_id = sales_data['customer_id']
-        customer = Customer.objects(id=ObjectId(customer_id)).first()
-        product_id = sales_data['product_id']
-        product = Product.objects(id=ObjectId(product_id)).first()
-        unit_price = product.unit_price
-        qty = sales_data['qty']
-        
         new_sales = Sales()
-        new_sales.customer_id = customer
-        new_sales.product_id = product
-        new_sales.unit_price = unit_price
-        new_sales.qty = qty
-        new_sales.total_price = qty * unit_price
+        if 'customer_id' in sales_data:
+            customer_id = sales_data['customer_id']
+            customer = Customer.objects(id=ObjectId(customer_id)).first()
+            new_sales.customer_id = customer
+        if 'product_id' in sales_data:
+            product_id = sales_data['product_id']
+            product = Product.objects(id=ObjectId(product_id)).first()
+            unit_price = product.unit_price
+            new_sales.product_id = product
+            if unit_price:
+                new_sales.unit_price = unit_price
+            else:
+                new_sales.unit_price = 0
+        if 'qty' in sales_data:
+            new_sales.qty = sales_data['qty']
+        else:
+            new_sales.qty = 0
+        new_sales.total_price = new_sales.qty * new_sales.unit_price
         new_sales.save()
         return 'Success!', 200
     except Exception as e:
