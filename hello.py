@@ -225,6 +225,8 @@ def create_sales():
                 new_sales.unit_price = unit_price
             else:
                 new_sales.unit_price = 0
+        else:
+            new_sales.unit_price = 0
         if 'qty' in sales_data:
             new_sales.qty = sales_data['qty']
         else:
@@ -286,9 +288,15 @@ def update_sales(id):
                     product = Product.objects(id=ObjectId(product_id)).first()
                     unit_price = product.unit_price
                     sales.product_id = product
-                    sales.unit_price = unit_price
+                    if unit_price:
+                        sales.unit_price = unit_price
+                    else:
+                        sales.unit_price = 0
                 elif key == 'qty':
                     sales.qty = json_data['qty']
+
+                if not sales.qty:
+                    sales.qty = 0
             sales.total_price = sales.qty * sales.unit_price
             sales.save()
             sales_json = sales.to_json()
