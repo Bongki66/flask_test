@@ -57,10 +57,9 @@ def get_customer(id):
             customers = Customer.objects(id=ObjectId(id))
         customer_data = []
         for customer in customers:
-            customer_data.append({
-                'name': customer.name,
-                'handphone': customer.handphone, 
-            })
+            customer_json = customer.to_json()
+            customer_json = json.loads(customer_json)
+            customer_data.append(customer_json)
             
         return jsonify(customer_data), 200
     except Exception as e:
@@ -144,11 +143,9 @@ def get_product(id):
             products = Product.objects(id=ObjectId(id))
         product_data = []
         for product in products:
-            product_data.append({
-                'name': product.name,
-                'unit_price': product.unit_price,
-                'stock_type': product.stock_type, 
-            })
+            product_json = product.to_json()
+            product_json = json.loads(product_json)
+            product_data.append(product_json)
             
         return jsonify(product_data), 200
     except Exception as e:
@@ -251,17 +248,9 @@ def get_sales(id):
             sales = Sales.objects(id=ObjectId(id))
         sales_data = []
         for sale in sales:
-            customer_data = sale.customer_id.to_json()
-            customer_data = json.loads(customer_data)
-            product_data = sale.product_id.to_json()
-            product_data = json.loads(product_data)
-            sales_data.append({
-                'customer_id': customer_data,
-                'product_id': product_data,
-                'qty': sale.qty,
-                'unit_price': sale.unit_price,
-                'total_price': sale.total_price,
-            })
+            sale_json = sale.to_json()
+            sale_json = json.loads(sale_json)
+            sales_data.append(sale_json)
             
         return jsonify(sales_data), 200
     except Exception as e:
