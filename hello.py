@@ -71,24 +71,19 @@ def get_customer(id):
 def update_customer(id):
     try:
         print('id:', id, file=sys.stderr)
-        customer = Customer.objects(id=ObjectId(id))
+        customer = Customer.objects(id=ObjectId(id)).first()
         if customer:
-            print('json:', request.json, file=sys.stderr)
             json_data = request.json
             for key in json_data:
                 print('key:', key, file=sys.stderr)
                 if key == 'name':
-                    customer.update_one(set__name=json_data['name'])
+                    customer.name = json_data['name']
                 elif key == 'handphone':
-                    customer.update_one(set__handphone=json_data['handphone'])
-
-            res = []
-            for c in customer:
-                res.append({
-                    'name': c.name,
-                    'handphone': c.handphone,
-                })
-            return jsonify(res), 200
+                    customer.handphone = json_data['handphone']
+            customer.save()
+            customer_json = customer.to_json()
+            customer_json = json.loads(customer_json)
+            return jsonify(customer_json), 200
         else:
             return 'Invalid ID!', 400
     except Exception as e:
@@ -157,27 +152,22 @@ def get_product(id):
 def update_product(id):
     try:
         print('id:', id, file=sys.stderr)
-        product = Product.objects(id=ObjectId(id))
+        product = Product.objects(id=ObjectId(id)).first()
         if product:
             print('json:', request.json, file=sys.stderr)
             json_data = request.json
             for key in json_data:
                 print('key:', key, file=sys.stderr)
                 if key == 'name':
-                    product.update_one(set__name=json_data['name'])
+                    product.name = json_data['name']
                 elif key == 'unit_price':
-                    product.update_one(set__unit_price=json_data['unit_price'])
+                    product.unit_price = json_data['unit_price']
                 elif key == 'stock_type':
-                    product.update_one(set__stock_type=json_data['stock_type'])
-
-            res = []
-            for p in product:
-                res.append({
-                    'name': p.name,
-                    'unit_price': p.unit_price,
-                    'stock_type': p.stock_type,
-                })
-            return jsonify(res), 200
+                    product.stock_type = json_data['stock_type']
+            product.save()
+            product_json = product.to_json()
+            product_json = json.loads(product_json)
+            return jsonify(product_json), 200
         else:
             return 'Invalid ID!', 400
     except Exception as e:
