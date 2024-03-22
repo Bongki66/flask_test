@@ -20,6 +20,13 @@ class Product(Document):
     unit_price = FloatField()
     stock_type = IntField()
 
+class Sales(Document):
+    customer_id = ReferenceField('Customer')
+    product_id = ReferenceField('Product')
+    unit_price = FloatField()
+    qty = IntField()
+    total_price = FloatField()
+
 # CRUD CUSTOMER
 # CREATE
 @app.route("/customer", methods=['POST'])
@@ -187,3 +194,58 @@ def delete_product(id):
         return 'Failed!', 400
 
 # CRUD SALES
+# Create
+@app.route("/sales", methods=['POST'])
+def create_sales():
+    sales_data = json.loads(request.data)
+    try:
+        # customer object
+        # get data sales
+        customer_id = sales_data['customer_id']
+        customer = Customer.objects(id=ObjectId(customer_id)).first()
+        product_id = sales_data['product_id']
+        product = Product.objects(id=ObjectId(product_id)).first()
+        unit_price = product.unit_price
+        qty = sales_data['qty']
+        
+        new_sales = Sales()
+        new_sales.customer_id = customer
+        new_sales.product_id = product
+        new_sales.unit_price = unit_price
+        new_sales.qty = qty
+        new_sales.total_price = qty * unit_price
+        new_sales.save()
+        return 'Success!', 200
+    except Exception as e:
+        print('error:', e, file=sys.stderr)
+        return 'Failed!', 400
+
+# READ
+@app.route("/sales/<id>", methods=['GET'])
+def get_sales(id):
+    try:
+        print('id:', id, file=sys.stderr)
+        if (id == '0'):
+            print('masuk id 0', file=sys.stderr)
+            sales = Sales.objects
+        else:
+            print('masuk specific id', file=sys.stderr)
+            sales = Sales.objects(id=ObjectId(id))
+        sales_data = []
+        for sale in sales:
+            customer_data = sale.customer_id.to_json()
+            customer_data = json.loads(customer_data)
+            product_data = sale.product_id.to_json()
+            product_data = json.loads(product_data)
+            sales_data.append({
+                'customer_id': customer_data,
+                'product_id': product_data,
+                'qty': sale.qty,
+                'unit_price': sale.unit_price,
+                'total_price': sale.total_price,
+            })
+            
+        return jsonify(sales_data), 200
+    except Exception as e:
+        print('error:', e, file=sys.stderr)
+        return 'Failed!', 400
