@@ -138,4 +138,52 @@ def get_product(id):
         print('error:', e, file=sys.stderr)
         return 'Failed!', 400
 
+# UPDATE
+@app.route("/product/update/<id>", methods=['PUT'])
+def update_product(id):
+    try:
+        print('id:', id, file=sys.stderr)
+        product = Product.objects(id=ObjectId(id))
+        if product:
+            print('json:', request.json, file=sys.stderr)
+            json_data = request.json
+            for key in json_data:
+                print('key:', key, file=sys.stderr)
+                if key == 'name':
+                    product.update_one(set__name=json_data['name'])
+                elif key == 'unit_price':
+                    product.update_one(set__unit_price=json_data['unit_price'])
+                elif key == 'stock_type':
+                    product.update_one(set__stock_type=json_data['stock_type'])
+
+            res = []
+            for p in product:
+                res.append({
+                    'name': p.name,
+                    'unit_price': p.unit_price,
+                    'stock_type': p.stock_type,
+                })
+            return jsonify(res), 200
+        else:
+            return 'Invalid ID!', 400
+    except Exception as e:
+        print('error:', e, file=sys.stderr)
+        return 'Failed!', 400
+
+# DELETE
+@app.route("/product/delete/<id>", methods=['DELETE'])
+def delete_product(id):
+    try:
+        print('id:', id, file=sys.stderr)
+        product = Product.objects(id=ObjectId(id))
+        if product:
+            for p in product:
+                p.delete()
+            return 'Success delete product id: ' + id, 200
+        else:
+            return 'Invalid ID', 400
+    except Exception as e:
+        print('error:', e, file=sys.stderr)
+        return 'Failed!', 400
+
 # CRUD SALES
