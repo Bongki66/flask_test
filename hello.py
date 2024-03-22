@@ -21,6 +21,7 @@ class Product(Document):
     stock_type = IntField()
 
 # CRUD CUSTOMER
+# CREATE
 @app.route("/customer", methods=['POST'])
 def create_customer():
     customer_data = json.loads(request.data)
@@ -32,6 +33,7 @@ def create_customer():
         print('error:', e, file=sys.stderr)
         return 'Failed!', 400
 
+# READ
 @app.route("/customer/<id>", methods=['GET'])
 def get_customer(id):
     try:
@@ -54,6 +56,7 @@ def get_customer(id):
         print('error:', e, file=sys.stderr)
         return 'Failed!', 400
 
+# UPDATE
 @app.route("/customer/update/<id>", methods=['PUT'])
 def update_customer(id):
     try:
@@ -82,6 +85,7 @@ def update_customer(id):
         print('error:', e, file=sys.stderr)
         return 'Failed!', 400
 
+# DELETE
 @app.route("/customer/delete/<id>", methods=['DELETE'])
 def delete_customer(id):
     try:
@@ -98,4 +102,40 @@ def delete_customer(id):
         return 'Failed!', 400
 
 # CRUD PRODUCT
+# CREATE
+@app.route("/product", methods=['POST'])
+def create_product():
+    product_data = json.loads(request.data)
+    try:
+        new_product = Product(name=product_data['name'], unit_price=product_data['unit_price'], stock_type=product_data['stock_type'])
+        new_product.save()
+        return 'Success!', 200
+    except Exception as e:
+        print('error:', e, file=sys.stderr)
+        return 'Failed!', 400
+
+# READ
+@app.route("/product/<id>", methods=['GET'])
+def get_product(id):
+    try:
+        print('id:', id, file=sys.stderr)
+        if (id == '0'):
+            print('masuk id 0', file=sys.stderr)
+            products = Product.objects
+        else:
+            print('masuk specific id', file=sys.stderr)
+            products = Product.objects(id=ObjectId(id))
+        product_data = []
+        for product in products:
+            product_data.append({
+                'name': product.name,
+                'unit_price': product.unit_price,
+                'stock_type': product.stock_type, 
+            })
+            
+        return jsonify(product_data), 200
+    except Exception as e:
+        print('error:', e, file=sys.stderr)
+        return 'Failed!', 400
+
 # CRUD SALES
